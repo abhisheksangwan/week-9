@@ -3,27 +3,23 @@ name: Deploy
 on:
   push:
     branches:
-      - master # or the branch you want to deploy from
-
+      - master 
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest #choose a github ubuntu machine
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code #clone the code to github machine
-      uses: actions/checkout@v2 #This is opensource action that brings code to ubuntu machine
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Prepare SSH key and known_hosts
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > keyfile
-        chmod 600 keyfile
-        ssh-keyscan ec2-16-16-217-61.eu-north-1.compute.amazonaws.com >> ~/.ssh/known_hosts
-          
-    - name: SSH and deploy #redeploy 
+    - name: SSH and deploy
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
+        echo "$SSH_PRIVATE_KEY" > keyfile
+        chmod 600 keyfile
+        mkdir -p ~/.ssh
+        cp known_hosts ~/.ssh/known_hosts
         ssh -t -i keyfile ubuntu@ec2-16-16-217-61.eu-north-1.compute.amazonaws.com "sudo bash ~/deploy.sh"
 
